@@ -1,52 +1,28 @@
 const express = require("express");
-
-const app = express();
+const auth = require("./middleware/auth");
 
 const port = 3000;
+const app = express();
 
-//Single Middleware to handle all requests
+//User Routes
+app.get("/user", auth.authUser, (req, res, next) => {
+  console.log("Middleware is running");
+  res.send("Hello from the user route");
+});
+app.get("/user/details", (req, res, next) => {
+  console.log("Details route is running");
+  res.send("Hello from the user details route");
+});
 
-// app.get("/user", (req, res) => {
-//   //Router handles the request
-//   res.send({
-//     name: "John Doe",
-//     age: 30,
-//     email: "john.doe@example.com",
-//     password: "John@123",
-//   });
-// });
-
-// app.post("/user", (req, res) => {
-//   res.send({
-//     message: "User created successfully",
-//   });
-// });
-
-// app.delete("/user", (req, res) => {
-//   res.send({
-//     message: "User deleted successfully",
-//   });
-// });
-
-//Multiple middlewares for the same route
-app.use(
-  "/user",
-  [
-    (req, res, next) => {
-      console.log("User route accessed"); //middleware handling the request
-      // res.send("Hello from user route");
-      next();
-    },
-  ],
-  [
-    (req, res, next) => {
-      console.log("This is the second middleware for user route");
-      res.send("Hello from second middleware for user route"); // response handling the request
-      // next();
-    },
-  ]
-);
-
+//Admin Routes
+app.get("/admin", auth.authAdmin, (req, res, next) => {
+  console.log("Middleware is running");
+  res.send("Hello from the admin route");
+});
+app.get("/admin/details", (req, res, next) => {
+  console.log("Details route is running");
+  res.send("Hello from the admin details route");
+});
 //Listen for incoming requests
 app.listen(port, () => {
   console.log("Server is running on port ", port);
