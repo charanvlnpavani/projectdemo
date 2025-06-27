@@ -33,7 +33,7 @@ app.use(
   "/user",
   [
     (req, res, next) => {
-      console.log("User route accessed");
+      console.log("User route accessed"); //middleware handling the request
       // res.send("Hello from user route");
       next();
     },
@@ -41,7 +41,7 @@ app.use(
   [
     (req, res, next) => {
       console.log("This is the second middleware for user route");
-      res.send("Hello from second middleware for user route");
+      res.send("Hello from second middleware for user route"); // response handling the request
       // next();
     },
   ]
