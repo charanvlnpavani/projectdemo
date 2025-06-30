@@ -8,12 +8,12 @@ connectDB()
   .then(() => {
     console.log("Database connected successfully");
     console.log("Starting server...");
+    app.listen(port, () => {
+      console.log("Server is running on port ", port);
+    });
   })
   .catch((err) => {
     console.error("Database connection failed:", err);
   });
 
 //Listen for incoming requests
-app.listen(port, () => {
-  console.log("Server is running on port ", port);
-});
