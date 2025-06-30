@@ -1,29 +1,19 @@
 const express = require("express");
 const auth = require("./middleware/auth");
+const { connectDB } = require("./config/database");
 
 const port = 3000;
 const app = express();
+connectDB()
+  .then(() => {
+    console.log("Database connected successfully");
+    console.log("Starting server...");
+    app.listen(port, () => {
+      console.log("Server is running on port ", port);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+  });
 
-//User Routes
-app.get("/user", auth.authUser, (req, res, next) => {
-  console.log("Middleware is running");
-  res.send("Hello from the user route");
-});
-app.get("/user/details", (req, res, next) => {
-  console.log("Details route is running");
-  res.send("Hello from the user details route");
-});
-
-//Admin Routes
-app.get("/admin", auth.authAdmin, (req, res, next) => {
-  console.log("Middleware is running");
-  res.send("Hello from the admin route");
-});
-app.get("/admin/details", (req, res, next) => {
-  console.log("Details route is running");
-  res.send("Hello from the admin details route");
-});
 //Listen for incoming requests
-app.listen(port, () => {
-  console.log("Server is running on port ", port);
-});
