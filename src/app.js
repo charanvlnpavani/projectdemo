@@ -4,27 +4,33 @@ const User = require("./models/user");
 
 const port = 3000;
 const app = express();
-
+app.use(express.json()); // Middleware to parse JSON bodies
 app.post("/signup", async (req, res) => {
-  const user = new User({
-    name: "charan vln pavani",
-    password: "charan@123",
-    email: "charanvlnpavani@gmail.com",
-    age: 27,
-    gender: "male",
-  });
-  await user.save();
-  res.send("User created successfully");
+  const user = new User(req.body);
+  try {
+    await user.save();
+    res.send("User created successfully");
+  } catch (error) {
+    res.status(400).send("Error creating user: " + error.message);
+  }
 });
 
-app.get("/signup", async (req, res) => {
-  const userFind = new User({
-    name: "charan vln pavani",
-    password: "charan@12",
-  });
-  await userFind.validate();
-  res.send("User validated successfully");
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.email;
+  const user = await User.find({ email: userEmail });
+  try {
+    if (user.length === 0) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(user);
+    }
+  } catch (error) {
+    res.status(400).send("Error fetching user: " + error.message);
+  }
 });
+
+
+
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
