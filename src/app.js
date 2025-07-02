@@ -5,6 +5,7 @@ const User = require("./models/user");
 const port = 3000;
 const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
+//post user data
 app.post("/signup", async (req, res) => {
   const user = new User(req.body);
   try {
@@ -14,7 +15,7 @@ app.post("/signup", async (req, res) => {
     res.status(400).send("Error creating user: " + error.message);
   }
 });
-
+// get  user data
 app.get("/user", async (req, res) => {
   const userEmail = req.body.email;
   const user = await User.find({ email: userEmail });
@@ -28,7 +29,7 @@ app.get("/user", async (req, res) => {
     res.status(400).send("Error fetching user: " + error.message);
   }
 });
-
+// get user feed data
 app.get("/feedData", async (req, res) => {
   const userEmail = req.body.email;
   const emailValid = await User.findOne({
@@ -48,7 +49,7 @@ app.get("/feedData", async (req, res) => {
     "This is the feed data endpoint. You can add your feed data logic here."
   );
 });
-
+//delete user
 app.delete("/user", async (req, res) => {
   const userId = req.body._id;
   console.log("User ID to delete:", userId);
