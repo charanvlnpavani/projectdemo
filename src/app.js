@@ -29,7 +29,39 @@ app.get("/user", async (req, res) => {
   }
 });
 
+app.get("/feedData", async (req, res) => {
+  const userEmail = req.body.email;
+  const emailValid = await User.findOne({
+    email: userEmail,
+  });
+  try {
+    if (!emailValid) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(emailValid);
+    }
+  } catch (err) {
+    res.status(400).send("Error fetching user: " + err.message);
+  }
 
+  res.send(
+    "This is the feed data endpoint. You can add your feed data logic here."
+  );
+});
+
+app.delete("/user", async (req, res) => {
+  const userId = req.body._id;
+  console.log("User ID to delete:", userId);
+  try {
+    const deleteUser = await User.findByIdAndDelete(userId);
+    if (!deleteUser) {
+      return res.status(404).send("User not found");
+    }
+    res.send("User deleted successfully");
+  } catch (err) {
+    res.status(400).send("Error deleting user: " + err.message);
+  }
+});
 
 connectDB()
   .then(() => {
