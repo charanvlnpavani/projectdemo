@@ -49,6 +49,20 @@ app.get("/feedData", async (req, res) => {
     "This is the feed data endpoint. You can add your feed data logic here."
   );
 });
+//update user
+app.patch("/user", async (req, res) => {
+  const data = req.body;
+  const userId = data._id;
+  const updateName = await User.findOneAndUpdate({ _id: userId }, data);
+  try {
+    if (!updateName) {
+      res.status(404).send("User not found");
+    }
+    res.status(200).send("User Data Update Successfully");
+  } catch (err) {
+    res.status(400).send("Error updating user: " + err.message);
+  }
+});
 //delete user
 app.delete("/user", async (req, res) => {
   const userId = req.body._id;
@@ -63,7 +77,6 @@ app.delete("/user", async (req, res) => {
     res.status(400).send("Error deleting user: " + err.message);
   }
 });
-
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
