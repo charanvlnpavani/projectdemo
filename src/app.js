@@ -49,6 +49,33 @@ app.get("/feedData", async (req, res) => {
     "This is the feed data endpoint. You can add your feed data logic here."
   );
 });
+
+//get all users data
+app.get("/allUsers", async (req, res) => {
+  const users = await User.find({});
+  try {
+    if (usersLength === 0) {
+      res.status(404).send("No users found");
+    } else {
+      res.send(users);
+    }
+  } catch (error) {
+    res.status(400).send("Error fetching users: " + error.message);
+  }
+});
+//get user Count
+app.get("/userCount", async (req, res) => {
+  const userCount = await User.countDocuments({});
+  try {
+    if (userCount === 0) {
+      res.status(404).send("No users are found");
+    }
+    res.send(`Total number of users: ${userCount}`);
+  } catch (error) {
+    res.status(400).send("Error Fetching User Count: " + error);
+  }
+});
+
 //update user
 app.patch("/user", async (req, res) => {
   const data = req.body;
