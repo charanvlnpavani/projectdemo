@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -14,7 +15,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 6,
       maxLength: 15,
-      trime: true,
+      trim: true,
+      validate: {
+        validator: function (v) {
+          return validator.isStrongPassword(v);
+        },
+        message: "Password is not strong enough",
+      },
     },
     email: {
       type: String,
@@ -24,7 +31,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate: {
         validator: function (v) {
-          return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
+          return validator.isEmail(v);
         },
         message: "Invalid email format",
       },
@@ -42,12 +49,12 @@ const userSchema = new mongoose.Schema(
       },
     },
     phoneno: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
       validate: {
         validator: function (v) {
-          return /^\d{10}$/.test(v); // Validate that the phone number is 10 digits
+          return String(v).length === 10; // Validate that the phone number is 10 digits
         },
         message: "Phone number must be 10 digits",
       },
