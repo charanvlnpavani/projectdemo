@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      minLength: 6,
+      maxLength: 15,
+      trime: true,
     },
     email: {
       type: String,
@@ -52,6 +55,18 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
       default: "Not Provided Yet - Please Update Your Address",
+      minLength: 10,
+      maxLength: 500,
+    },
+    skills: {
+      type: [String],
+      required: true,
+      validate: function (v) {
+        if (v.length > 10) {
+          throw new Error("Please Select Only 10 Skills");
+        }
+        return true;
+      },
     },
   },
   {

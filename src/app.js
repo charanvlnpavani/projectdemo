@@ -54,7 +54,7 @@ app.get("/feedData", async (req, res) => {
 app.get("/allUsers", async (req, res) => {
   const users = await User.find({});
   try {
-    if (usersLength === 0) {
+    if (users.length === 0) {
       res.status(404).send("No users found");
     } else {
       res.send(users);
@@ -77,11 +77,29 @@ app.get("/userCount", async (req, res) => {
 });
 
 //update user
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   const data = req.body;
-  const userId = data._id;
-  const updateName = await User.findOneAndUpdate({ _id: userId }, data);
+  const userId = req.params?.userId;
   try {
+    const ALLOWED_UPDATE_DATA = [
+      "age",
+      "gender",
+      "address",
+      "password",
+      "skills",
+    ];
+    const isAllowedUpdateData = Object.keys(data).every((update) =>
+      ALLOWED_UPDATE_DATA.includes(update)
+    );
+    if (!isAllowedUpdateData) {
+      throw new Error("Invalid update data");
+    }
+    const updateName = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+    console.log(updateName);
+
     if (!updateName) {
       res.status(404).send("User not found");
     }
