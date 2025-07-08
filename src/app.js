@@ -3,6 +3,7 @@ const { connectDB } = require("./config/database");
 const User = require("./models/user");
 const { signupValidation } = require("./utils/signupValidation");
 const { passwordEncry } = require("./utils/passwordEncry");
+const bcrypt = require("bcrypt");
 
 const port = 3000;
 const app = express();
@@ -26,6 +27,27 @@ app.post("/signup", async (req, res) => {
     res.status(400).send("Error creating user: " + error.message);
   }
 });
+//post login user data
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  console.log(email, password);
+  try {
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("Credentials not found");
+    }
+    console.log(password, "=", user.password);
+    const isPassword = await bcrypt.compare(password, user.password);
+    if (!isPassword) {
+      throw new Error("Credentials not found");
+    }
+    res.send("User Logged in Successfully");
+  } catch (error) {
+    res.status(400).send("Error logging in user: " + error.message);
+  }
+});
+
 // get  user data
 app.get("/user", async (req, res) => {
   const userEmail = req.body.email;
@@ -40,7 +62,7 @@ app.get("/user", async (req, res) => {
     res.status(400).send("Error fetching user: " + error.message);
   }
 });
-// get user feed data
+// get user feed dat
 app.get("/feedData", async (req, res) => {
   const userEmail = req.body.email;
   const emailValid = await User.findOne({
