@@ -14,7 +14,12 @@ app.post("/signup", async (req, res) => {
     signupValidation(req);
     //Encrypt password
     passwordEncry(req);
-    const user = new User(req.body);
+    const user = new User({
+      name: req.body.name,
+      password: req.body.password,
+      email: req.body.email,
+      phoneno: req.body.phoneno,
+    });
     await user.save();
     res.send("User created successfully");
   } catch (error) {
