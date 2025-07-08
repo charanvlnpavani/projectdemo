@@ -1,14 +1,20 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
+const { signupValidation } = require("./utils/signupValidation");
+const { passwordEncry } = require("./utils/passwordEncry");
 
 const port = 3000;
 const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
 //post user data
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
   try {
+    // Validate user data
+    signupValidation(req);
+    //Encrypt password
+    passwordEncry(req);
+    const user = new User(req.body);
     await user.save();
     res.send("User created successfully");
   } catch (error) {
