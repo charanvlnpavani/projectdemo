@@ -4,10 +4,13 @@ const User = require("./models/user");
 const { signupValidation } = require("./utils/signupValidation");
 const { passwordEncry } = require("./utils/passwordEncry");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const port = 3000;
 const app = express();
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json());
+app.use(cookieParser());
 //post user data
 app.post("/signup", async (req, res) => {
   try {
@@ -28,26 +31,26 @@ app.post("/signup", async (req, res) => {
   }
 });
 //post login user data
-
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
+
   try {
     const user = await User.findOne({ email: email });
+    const token = await jwt.sign({ id: user._id }, "P!vlnc@98@!#$SWfhgt");
+
     if (!user) {
       throw new Error("Credentials not found");
     }
-    console.log(password, "=", user.password);
     const isPassword = await bcrypt.compare(password, user.password);
     if (!isPassword) {
       throw new Error("Credentials not found");
     }
+    res.cookie("token", token);
     res.send("User Logged in Successfully");
   } catch (error) {
     res.status(400).send("Error logging in user: " + error.message);
   }
 });
-
 // get  user data
 app.get("/user", async (req, res) => {
   const userEmail = req.body.email;
@@ -82,7 +85,6 @@ app.get("/feedData", async (req, res) => {
     "This is the feed data endpoint. You can add your feed data logic here."
   );
 });
-
 //get all users data
 app.get("/allUsers", async (req, res) => {
   const users = await User.find({});
@@ -108,7 +110,20 @@ app.get("/userCount", async (req, res) => {
     res.status(400).send("Error Fetching User Count: " + error);
   }
 });
-
+//get profile
+app.get("/profile", async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      res.status(401).send("Please Login First...!");
+    }
+    const decodingJWT = jwt.verify(token, "P!vlnc@98@!#$SWfhgt");
+    const user = await User.findById({ _id: decodingJWT.id });
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("Error Fetching User Count: " + err);
+  }
+});
 //update user
 app.patch("/user/:userId", async (req, res) => {
   const data = req.body;
