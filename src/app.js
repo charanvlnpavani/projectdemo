@@ -6,6 +6,7 @@ const { passwordEncry } = require("./utils/passwordEncry");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { authAdmin } = require("./middleware/auth");
 
 const port = 3000;
 const app = express();
@@ -52,7 +53,7 @@ app.post("/login", async (req, res) => {
   }
 });
 // get  user data
-app.get("/user", async (req, res) => {
+app.get("/user", authAdmin, async (req, res) => {
   const userEmail = req.body.email;
   const user = await User.find({ email: userEmail });
   try {
@@ -65,13 +66,13 @@ app.get("/user", async (req, res) => {
     res.status(400).send("Error fetching user: " + error.message);
   }
 });
-// get user feed dat
-app.get("/feedData", async (req, res) => {
-  const userEmail = req.body.email;
-  const emailValid = await User.findOne({
-    email: userEmail,
-  });
+// get user feed data
+app.get("/feedData", authAdmin, async (req, res) => {
   try {
+    const userEmail = req.body.email;
+    const emailValid = await User.findOne({
+      email: userEmail,
+    });
     if (!emailValid) {
       res.status(404).send("User not found");
     } else {
@@ -86,7 +87,7 @@ app.get("/feedData", async (req, res) => {
   );
 });
 //get all users data
-app.get("/allUsers", async (req, res) => {
+app.get("/allUsers", authAdmin, async (req, res) => {
   const users = await User.find({});
   try {
     if (users.length === 0) {
@@ -111,21 +112,16 @@ app.get("/userCount", async (req, res) => {
   }
 });
 //get profile
-app.get("/profile", async (req, res) => {
+app.get("/profile", authAdmin, async (req, res) => {
   try {
-    const { token } = req.cookies;
-    if (!token) {
-      res.status(401).send("Please Login First...!");
-    }
-    const decodingJWT = jwt.verify(token, "P!vlnc@98@!#$SWfhgt");
-    const user = await User.findById({ _id: decodingJWT.id });
+    const user = req.user;
     res.send(user);
   } catch (err) {
     res.status(400).send("Error Fetching User Count: " + err);
   }
 });
 //update user
-app.patch("/user/:userId", async (req, res) => {
+app.patch("/user/:userId", authAdmin, async (req, res) => {
   const data = req.body;
   const userId = req.params?.userId;
   try {
@@ -157,7 +153,7 @@ app.patch("/user/:userId", async (req, res) => {
   }
 });
 //delete user
-app.delete("/user", async (req, res) => {
+app.delete("/user", authAdmin, async (req, res) => {
   const userId = req.body._id;
   console.log("User ID to delete:", userId);
   try {
