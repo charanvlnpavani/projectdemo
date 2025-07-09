@@ -1,3 +1,4 @@
+const { hash } = require("bcrypt");
 const mongoose = require("mongoose");
 const validator = require("validator");
 
@@ -78,8 +79,25 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-userSchema.index({ email: 1 }, { unique: true }); // Explicitly create unique index
 
-const User = mongoose.model("User", userSchema);
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "P!vlnc@98@!#$SWfhgt", {
+    expiresIn: "1d",
+  });
+  return token;
+};
 
-module.exports = User;
+userSchema.methods.validatePassword = async function (passwordSendInUser) {
+  const user = this;
+  const hashPassword = user.password;
+
+  const isValidate = await bcrypt.compare(passwordSendInUser, hashPassword);
+
+  if (!isValidate) {
+    throw new Error("Invalid Password");
+  }
+  return isValidate;
+};
+
+module.exports = mongoose.model("User", userSchema);

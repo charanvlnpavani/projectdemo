@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const { authAdmin } = require("./middleware/auth");
+const { get } = require("mongoose");
 
 const port = 3000;
 const app = express();
@@ -37,12 +38,12 @@ app.post("/login", async (req, res) => {
 
   try {
     const user = await User.findOne({ email: email });
-    const token = await jwt.sign({ id: user._id }, "P!vlnc@98@!#$SWfhgt");
+    const token = await user.getJWT();
 
     if (!user) {
       throw new Error("Credentials not found");
     }
-    const isPassword = await bcrypt.compare(password, user.password);
+    const isPassword = await user.validatePassword(password);
     if (!isPassword) {
       throw new Error("Credentials not found");
     }
